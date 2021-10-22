@@ -15,6 +15,74 @@
 							"name": "Contacts",
 							"item": [
 								{
+									"name": "contact_inboxes",
+									"item": [
+										{
+											"name": "create",
+											"event": [
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															""
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"// var jsonData = JSON.parse(responseBody);",
+															"// pm.environment.set(\"contact_id\", jsonData.payload.contact.id);",
+															"// pm.environment.set(\"phone_number\", jsonData.payload.contact.phone_number.replaceAll('+', ''));",
+															"// pm.environment.set(\"source_id\", jsonData.payload.contact_inbox.source_id);",
+															"",
+															"// postman.setEnvironmentVariable(\"current_user_id\", jsonData.response.user.id)",
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"method": "POST",
+												"header": [
+													{
+														"key": "api_access_token",
+														"value": "{{api_access_token}}",
+														"type": "text"
+													}
+												],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"inbox_id\": {{inbox_id}},\n    \"source_id\": \"962555555555555@c.us\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{host}}/{{api_version}}/accounts/{{account_id}}/contacts/{{contact_id}}/contact_inboxes",
+													"host": [
+														"{{host}}"
+													],
+													"path": [
+														"{{api_version}}",
+														"accounts",
+														"{{account_id}}",
+														"contacts",
+														"{{contact_id}}",
+														"contact_inboxes"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
 									"name": "search",
 									"event": [
 										{
@@ -204,8 +272,10 @@
 											"script": {
 												"exec": [
 													"var jsonData = JSON.parse(responseBody);",
-													"pm.environment.set(\"source_id\", jsonData.payload.contact_inbox.source_id);",
+													"pm.environment.set(\"contact_id\", jsonData.payload.contact.id);",
 													"pm.environment.set(\"phone_number\", jsonData.payload.contact.phone_number.replaceAll('+', ''));",
+													"pm.environment.set(\"source_id\", jsonData.payload.contact_inbox.source_id);",
+													"",
 													"// postman.setEnvironmentVariable(\"current_user_id\", jsonData.response.user.id)",
 													""
 												],
@@ -224,7 +294,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"inbox_id\": \"{{inbox_id}}\",\n    \"name\": \"{{$randomFullName}}\",\n    \"source_id\": \"{{randomPhoneNumber}}@c.us\",\n    \"phone_number\": \"+{{randomPhoneNumber}}\"\n}",
+											"raw": "{\n    \"contact\": {\n        \"name\": \"{{$randomFullName}}\",\n        \"phone_number\": \"+{{randomPhoneNumber}}\"\n        // \"inbox_id\": \"{{inbox_id}}\",\n        // \"source_id\": \"{{randomPhoneNumber}}@c.us\",\n    }\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -1203,6 +1273,50 @@
 									]
 								}
 							]
+						},
+						{
+							"name": "Inboxes",
+							"item": [
+								{
+									"name": "index",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var jsonData = JSON.parse(responseBody);",
+													"inbox = jsonData.payload.filter(i => i.channel_type === \"Channel::ChatApi\")[0] || jsonData.payload[0]",
+													"pm.environment.set(\"inbox_id\", inbox.id);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "api_access_token",
+												"value": "{{api_access_token}}",
+												"type": "text"
+											}
+										],
+										"url": {
+											"raw": "{{host}}/{{api_version}}/accounts/{{account_id}}/inboxes",
+											"host": [
+												"{{host}}"
+											],
+											"path": [
+												"{{api_version}}",
+												"accounts",
+												"{{account_id}}",
+												"inboxes"
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				}
@@ -1388,6 +1502,12 @@
 					]
 				}
 			]
+		}
+	],
+	"variable": [
+		{
+			"key": "randomPhoneNumber",
+			"value": ""
 		}
 	]
 }
